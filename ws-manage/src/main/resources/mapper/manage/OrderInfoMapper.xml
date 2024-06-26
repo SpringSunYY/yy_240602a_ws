@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.manage.mapper.OrderInfoMapper">
+    
+    <resultMap type="OrderInfo" id="OrderInfoResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="sendType"    column="send_type"    />
+        <result property="prices"    column="prices"    />
+        <result property="countryId"    column="country_id"    />
+        <result property="orderNumber"    column="order_number"    />
+        <result property="actualNumber"    column="actual_number"    />
+        <result property="optimizedNumber"    column="optimized_number"    />
+        <result property="accomplishNumber"    column="accomplish_number"    />
+        <result property="useIntegral"    column="use_integral"    />
+        <result property="actualIntegral"    column="actual_integral"    />
+        <result property="fileCotent"    column="file_cotent"    />
+        <result property="fileFilter"    column="file_filter"    />
+        <result property="copyContent"    column="copy_content"    />
+        <result property="linkContent"    column="link_content"    />
+        <result property="buttons"    column="buttons"    />
+        <result property="links"    column="links"    />
+        <result property="sendTime"    column="send_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="status"    column="status"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="remark"    column="remark"    />
+        <result property="isDelete"    column="is_delete"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectOrderInfoVo">
+        select id, name, type, send_type, prices, country_id, order_number, actual_number, optimized_number, accomplish_number, use_integral, actual_integral, file_cotent, file_filter, copy_content, link_content, buttons, links, send_time, end_time, status, user_id, dept_id, remark, is_delete, create_time, update_time from tb_order_info
+    </sql>
+
+    <select id="selectOrderInfoList" parameterType="OrderInfo" resultMap="OrderInfoResult">
+        <include refid="selectOrderInfoVo"/>
+        <where>  
+            <if test="id != null  and id != ''"> and id = #{id}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="sendType != null  and sendType != ''"> and send_type = #{sendType}</if>
+            <if test="countryId != null  and countryId != ''"> and country_id = #{countryId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="isDelete != null  and isDelete != ''"> and is_delete = #{isDelete}</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectOrderInfoById" parameterType="String" resultMap="OrderInfoResult">
+        <include refid="selectOrderInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertOrderInfo" parameterType="OrderInfo">
+        insert into tb_order_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="sendType != null and sendType != ''">send_type,</if>
+            <if test="prices != null">prices,</if>
+            <if test="countryId != null and countryId != ''">country_id,</if>
+            <if test="orderNumber != null">order_number,</if>
+            <if test="actualNumber != null">actual_number,</if>
+            <if test="optimizedNumber != null">optimized_number,</if>
+            <if test="accomplishNumber != null">accomplish_number,</if>
+            <if test="useIntegral != null">use_integral,</if>
+            <if test="actualIntegral != null">actual_integral,</if>
+            <if test="fileCotent != null and fileCotent != ''">file_cotent,</if>
+            <if test="fileFilter != null">file_filter,</if>
+            <if test="copyContent != null">copy_content,</if>
+            <if test="linkContent != null">link_content,</if>
+            <if test="buttons != null">buttons,</if>
+            <if test="links != null">links,</if>
+            <if test="sendTime != null">send_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="remark != null">remark,</if>
+            <if test="isDelete != null and isDelete != ''">is_delete,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="sendType != null and sendType != ''">#{sendType},</if>
+            <if test="prices != null">#{prices},</if>
+            <if test="countryId != null and countryId != ''">#{countryId},</if>
+            <if test="orderNumber != null">#{orderNumber},</if>
+            <if test="actualNumber != null">#{actualNumber},</if>
+            <if test="optimizedNumber != null">#{optimizedNumber},</if>
+            <if test="accomplishNumber != null">#{accomplishNumber},</if>
+            <if test="useIntegral != null">#{useIntegral},</if>
+            <if test="actualIntegral != null">#{actualIntegral},</if>
+            <if test="fileCotent != null and fileCotent != ''">#{fileCotent},</if>
+            <if test="fileFilter != null">#{fileFilter},</if>
+            <if test="copyContent != null">#{copyContent},</if>
+            <if test="linkContent != null">#{linkContent},</if>
+            <if test="buttons != null">#{buttons},</if>
+            <if test="links != null">#{links},</if>
+            <if test="sendTime != null">#{sendTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="isDelete != null and isDelete != ''">#{isDelete},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateOrderInfo" parameterType="OrderInfo">
+        update tb_order_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="sendType != null and sendType != ''">send_type = #{sendType},</if>
+            <if test="prices != null">prices = #{prices},</if>
+            <if test="countryId != null and countryId != ''">country_id = #{countryId},</if>
+            <if test="orderNumber != null">order_number = #{orderNumber},</if>
+            <if test="actualNumber != null">actual_number = #{actualNumber},</if>
+            <if test="optimizedNumber != null">optimized_number = #{optimizedNumber},</if>
+            <if test="accomplishNumber != null">accomplish_number = #{accomplishNumber},</if>
+            <if test="useIntegral != null">use_integral = #{useIntegral},</if>
+            <if test="actualIntegral != null">actual_integral = #{actualIntegral},</if>
+            <if test="fileCotent != null and fileCotent != ''">file_cotent = #{fileCotent},</if>
+            <if test="fileFilter != null">file_filter = #{fileFilter},</if>
+            <if test="copyContent != null">copy_content = #{copyContent},</if>
+            <if test="linkContent != null">link_content = #{linkContent},</if>
+            <if test="buttons != null">buttons = #{buttons},</if>
+            <if test="links != null">links = #{links},</if>
+            <if test="sendTime != null">send_time = #{sendTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="isDelete != null and isDelete != ''">is_delete = #{isDelete},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrderInfoById" parameterType="String">
+        update  tb_order_info set is_delete='1' where id = #{id}
+    </delete>
+
+    <delete id="deleteOrderInfoByIds" parameterType="String">
+        update  tb_order_info set is_delete='1'  where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

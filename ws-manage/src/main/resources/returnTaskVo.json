@@ -1,0 +1,28 @@
+{
+  "status": "succ",
+  "task_info": {
+    "check_key": "33f3a414e5564bb0ab7c7c095abaed01",
+    "create_time": "1718290231",
+    "is_api": "1",
+    "kefu_list": [
+      "5512988774581",
+      "5513996845206",
+      "5516988",
+      "5538998355270"
+    ],
+    "num_all": 4160,
+    "num_fail": 0,
+    "num_succ": 0,
+    "num_wait": 4160,
+    "price": "0.026",
+    "send_time": "1718294460",
+    "status": "4",
+    "task_name": "\u8d85\u94fe6",
+    "task_type": "2",
+    "text": "\u767e\u5ea6{url}",
+    "url_list": [
+      "https:\\/\\/example.com"
+    ],
+    "user_id": "18"
+  }
+}

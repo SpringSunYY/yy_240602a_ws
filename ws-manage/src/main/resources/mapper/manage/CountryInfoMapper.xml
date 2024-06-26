@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.manage.mapper.CountryInfoMapper">
+    
+    <resultMap type="CountryInfo" id="CountryInfoResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="adName"    column="ad_name"    />
+        <result property="phoneCode"    column="phone_code"    />
+        <result property="allName"    column="all_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="remark"    column="remark"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCountryInfoVo">
+        select id, name, ad_name, phone_code, all_name, create_by, remark, create_time, update_time from tb_country_info
+    </sql>
+
+    <select id="selectCountryInfoList" parameterType="CountryInfo" resultMap="CountryInfoResult">
+        <include refid="selectCountryInfoVo"/>
+        <where>  
+            <if test="id != null  and id != ''"> and id = #{id}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="adName != null  and adName != ''"> and ad_name like concat('%', #{adName}, '%')</if>
+            <if test="phoneCode != null  and phoneCode != ''"> and phone_code like concat('%', #{phoneCode}, '%')</if>
+            <if test="allName != null  and allName != ''"> and all_name like concat('%', #{allName}, '%')</if>
+            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectCountryInfoById" parameterType="String" resultMap="CountryInfoResult">
+        <include refid="selectCountryInfoVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertCountryInfo" parameterType="CountryInfo">
+        insert into tb_country_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="adName != null and adName != ''">ad_name,</if>
+            <if test="phoneCode != null and phoneCode != ''">phone_code,</if>
+            <if test="allName != null and allName != ''">all_name,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="adName != null and adName != ''">#{adName},</if>
+            <if test="phoneCode != null and phoneCode != ''">#{phoneCode},</if>
+            <if test="allName != null and allName != ''">#{allName},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCountryInfo" parameterType="CountryInfo">
+        update tb_country_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="adName != null and adName != ''">ad_name = #{adName},</if>
+            <if test="phoneCode != null and phoneCode != ''">phone_code = #{phoneCode},</if>
+            <if test="allName != null and allName != ''">all_name = #{allName},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCountryInfoById" parameterType="String">
+        delete from tb_country_info where id = #{id}
+    </delete>
+
+    <delete id="deleteCountryInfoByIds" parameterType="String">
+        delete from tb_country_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

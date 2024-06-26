@@ -1,24 +1,72 @@
-Application Version: ${ruoyi.version}
-Spring Boot Version: ${spring-boot.version}
-////////////////////////////////////////////////////////////////////
-//                          _ooOoo_                               //
-//                         o8888888o                              //
-//                         88" . "88                              //
-//                         (| ^_^ |)                              //
-//                         O\  =  /O                              //
-//                      ____/`---'\____                           //
-//                    .'  \\|     |//  `.                         //
-//                   /  \\|||  :  |||//  \                        //
-//                  /  _||||| -:- |||||-  \                       //
-//                  |   | \\\  -  /// |   |                       //
-//                  | \_|  ''\---/''  |   |                       //
-//                  \  .-\__  `-`  ___/-. /                       //
-//                ___`. .'  /--.--\  `. . ___                     //
-//              ."" '<  `.___\_<|>_/___.'  >'"".                  //
-//            | | :  `- \`.;`\ _ /`;.`/ - ` : | |                 //
-//            \  \ `-.   \_ __\ /__ _/   .-` /  /                 //
-//      ========`-.____`-.___\_____/___.-`____.-'========         //
-//                           `=---='                              //
-//      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^        //
-//             佛祖保佑       永不宕机      永无BUG               //
-////////////////////////////////////////////////////////////////////
+@@@@@@O@@@@@@@@@O@@O@@@@@@@@@OO//\O@O@OOOOOOOOOOOO@@@@OOOO@OOOOO@@O@OOOOOOOO`\OOO\/O.. OOOO^O`,\OOOOOOOOOOOOOOOOOOOOOO/OOOOOOOOOOOOOOOOOOOOOOOOO
+@@@@@@@@@@@@@@@O@@@@@@@@@@@OOO@@@OOOO@O@@@OOOOOO@@@@@@@@@OO@OOOO@OOOOOOOOOOOOOOOOOOO\\OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+@@@@@@@@@@@@@@@@@OO@@@@@@@@@@@@@@/OOOOOOOO@@OOOOO@@@OO@OOO@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOO/OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+@@@@@@@@OOOO@@@@@@@OO@@O@@@@@@O/@@@@@@@@@OO@@@@OOOOO@@@OO@@OOO@@@OOOOOOOOO/\/\/OOOOOOOOO\O`/\OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\o,O
+@@@@@@@@@OO@@@@@OO@@O@@@@@O@@@@@@@@@@@@@@@@@@@@@@@OO@@@@OOOOOOO@@@OOOO`..,[....[[[OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO.=OOOO
+@@@@@@@@@@@@@@@OOO@@@@@@@@@O@@@@@@@@@@@@@@@@@@@@@@@@@@OOOO@O@@@@O@@OOO^,...     ..\`OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+@@@@@@@@@@@@@@@@O@@OO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOO/oOOOOO@@O@OOOOO/,...OOOOOOOO/OOOOOOOOOOOOOOOOOO/O=OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\/OOOOO
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@@@@@@@@@@@@@@OOOOOOOOOOOOO@OOOOOO\   OOOOOOOOOOOOO@@OOOOOOOOOOOOOO\\\\OOOOOOOOOOOOOOOOO^OOOOOOOOOOO\OOOOOO
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@@@@@@@@@@@@@@@OOOOOOOOOOO@@OOOOOOOO\   .OOOOO@@OO@@@@O/. .     ,[\OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\OOOOOOOO
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@@OOOO@@@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@@O^..             ,OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+O@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@OOOo@@@@@@@@@@@@@OOOOoOO\OOOOOOo[OOOOOOOOOOOOOOOO@OOO@@OOO/.                 \OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+O@@@@@@@@@@@@@@@@@@@@@OOOO@@@@@@@OOO@@@@@@@@@@@OO@@@OOOOOO\OOOOO/OOOO@@@@@@OOO@@OOOOOOOOO/.  .  .              ,\OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@OOOOO@@@@@@@@@OOOOOOOOOOOOOOOOOoOoOOO@@@@@@OOOOOOOOOOO[`....  .. .                 \OOOOOOOOOOOOOOOOOOOOOOOOOOOoO
+@@@OOOO@@@@@@@@@@OOO@@OO@OOOOOOOOOOOOOO@@OOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@OOOOOOOOOO^..****...... .   ..             =OOOOOOOOOOOOOOOOOOOOOOOOOOOO
+@@OOOO*.\/O@@@O]OOOO@@OOO@OOOOOOOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOO@@@OOOOOOOO]]]=o]`......... .                ,OOOOOOOOOOOOOOO/OOOOOOOOOO
+@ooOO/....,o@@@\,OOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOooOOOOOOOOOOO@@@@OOOOOOOOO`........                  ,OOOOOOOOOOOOOOOOOOOOOOOO
+O,[,*,]...,[\OO.*/^OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOoOOO@@@@@@@@@OOOOOOOOOOOO\.......                  OOOOOOOOOOOOOOOOOOOOOOO
+^*,O\=O`[..^,. .*....OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOoOO@@OOOOOOOO@OOOOOOOOOO`......  .                OOOOOOOOOOOOOOOOOOOOOO
+^*=OOOOO]OOOO\]*..*=O@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@OOOOOOOOOOOOOOOOOO\.....  ..                 \OOOOOOOOOOOOOOOOOOOO
+]]`/[O@O/oOOOOOOOOOO@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@OOOOOO@OOOOoooooOOO`......                    OOOOOOOOOOOOOOOOOOO
+/@@@o=OO`=OOOOOOOOO@@@OOOOOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@@@@@OOOOOOOOOOOOOOO]...                      =OOOOOOOOOOOOOOOOO
+OOOOOOOOOOOOOOOOO@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@@OOOOOOOO@OOOOOOOOOOO\`    .                  =OOOOOOOOOOOOOOOO
+@@OO@@@OO@@@OOOOO@@@@@@OOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@O@@OOOOOOOOOOOOO    .                   ,OOOOOOOOOOOOOOO
+@@@@@O@OOOOo/O@O@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO@OO@OOOOOOoOOOOOO                          OOOOOOOOOOOOOO
+@@@@@@@O\OOooO@@@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOooOOOOO/=OOOOO@@OOOOOOOOOOO^                           \OOOOOOOOOOOO
+OOOOO@@@@@@@OOO@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO`]OOOOOOOOoOOOOOOOOOOOOOOOO^                            \OOOOOOOOOOO
+OOOoO@@@@@@OOOO@@@@@@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\]].OOOOO^.=^OOOOOOOOOOOOO^ .....                       =OOOOOOOOOO
+O@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\OoOOOOOOO^./\OOOOOOOOOOOO\\ ...                          \OOOOOOOOO
+ooOO@@OOOOO@@@@@@@@@@@@@@@@@@@@@OOOO@OOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOoO*,OOOoOOOOOOOO[[[\O^=oo/[`==...         ......         .   =OOOOOOOO
+OOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOOOOO@@OOOOO@@OOOOOOOOOOOOOOOOOOOOOOOOOo/..=OOOOOOo\OO^..,^........=^`      ....                     =OOOOOOO
+OOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@@OOO@@OOOOOO@OOOOOOOOOOOOOOOOOOOOOOOOOOO^..=OOOOOOo=OOOOO/.........=/    ...                          OOOOOOO
+OOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@@OO@@@OOOOO@@@@@@O@@@OOO@OOOOOOOOOOOOOOOO^..=OOOOOO^OOOOOO......   ..                                  `.../OO
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@@OOO@@@@@@@@@@@@OOO@@OOOOOOOOOOOOOOO^..OOOOOOO\/[*/`........                                     =`.,]`.
+@@@@OO@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@OOOO@@@@@@@@@@@@@@@@@@OOOO@OOOOOOOOoO...OOOOOOO\]`]]`........  ..                                 .*o=OOOO
+@OOO@@@@@O@@@@@@@@@@@@@@@@@@@@@@O@@@@@OOO@@@@@@@@@@@@@@@@@@@OO@@@@OOOOOOO\O...OOOOoO^=ooOO^...... .....                               ,\/..*=OOO
+@OOOOOOOOO@@@@@@@@@@@@@@@@@@@@@O@@@@@OOO@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOO^=^...OOOOOO^=OOOO........    .                              /Oo\*.,OOOO
+@OO@OOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOO*o^...OOOOOO`OOOOO.....                                    ,OOOOOOOOOOOO
+@OO@OoOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOO=.*...OOOOOo*oOOO`                                        /OOOOoOOOO//OO
+@OOOOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@@@OOOOOO`*.../OOOOOo,`                                          ,OOOOOOOOOoOoOoO
+OOOOOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOOOOOOOOO]]]OOOOOOOO\`                                          /OOOOOOOOOOOOOOOO
+OOOOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOOOOOOOOOOOOOOOOOOOOO/                                          ,OOOOOOOOOOOOOOOOOO
+OOOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OO@@OOOOOOOOOOOOOOOOOOO`                                              /OOOOOOOOOOOOOOOOOOO
+OOOOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@O@@OOOOOOOOOOO[`                                                   ,OOOOooOOOOOOOOOOOOo/O
+OOoOOOO@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOOO/[[[[                                                           /OOOOOooOOOOOOOoOoooooo
+.....,O@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOO@@@@@@OOOO/`                                                                ,OOOOOOOOOOOOOOOOOOOOOOOO
+.....\O@@@@@@@@@@@@@@@@@@@@@@@@@@@OOOOO@OOOOO/`                                                                       /OOOOOOOOOOOOOOOOOOOOOOOOO
+.....*O@@@@OO@@OO@@@@@@@@@@@@@OOOO@OOOOO/`                                                                          ,OOOOOOOOOOOOOOOOOOOOOOOOOOO
+......oO@@OO@@OOO@O@OO@@@@@@@@@OOOOOOO`                                                                           ,OOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+......,O@@OO@@OOO@OO@O@@@@O@@@OOOOOO^                                                                            /OOOOOOOOOOOOOOOOOOOOOOOOOOOOoo
+.......[OOOO@@OOO@OOOOOO@@@OOOOOOO/                                                                            =oOOOOOOOOOOOOooooooooooooooooooo
+OO]*....=OOO@@@OO@OOOOOOOOOOOOOOO`                                                                           ,oooooOooooooOooooooooooooooooooooo
+OoooOOOooOOOO@@O@O@OOOOOOOOOOOOO/                                                                          ./ooooooooooooooooooooooooooooooooooo
+ooooooOOOOOOO@@OOOOOOOOOOOOOOOO`                                                                          /oooooooooooooooooooooooooooooooooooOo
+OOo/ooOOOOOOOOOOOOOOOOOOOOOOOO                                                                          =ooooooooooooooooooooooooooooooooooooooo
+oooooOOOOOOOOOO^OOOOOOOOOOOO^                                                                         ,OOOOooo\ooOOooooooooooooooooooooooooooooo
+oOoooooOOOOOOO`..,[OOOOOOOO                       .........                                         .ooOOOOoooooooo]/ooooooooooooooooooooooooooo
+oOOOOOooOoOoO`.......,\OO^                ...                                                      /oooOOOOooooooooOOooooooooooooooooooooooooooo
+oOoOOOOOOOOo^..........[                 .                                                       =oooooOOOOoooooooooooooooooooOooooooooooooooooo
+OOOOOOOOOOOO`..........                 .                                                      ,oooooooOOOoooooooooooooooooooooooooooooooooooooo
+oOOOOOOOOOo/ ........    ...                                                                 ./oooooooOOOOoooooooooooooooooooooooooooooooooooooo
+\OOOoooooo[^           ....                                                                 ...[\oooooOOOooooo*]oooooooooooooooooooooooooooooooo
+oOOOo/ooo**  ..      .....                                                                 .        .=OOOo/\oooooooooooooooooooooooooooooooooooo
+OOOOo**,**`  ....      ..                                                                         ...OOO...[`.*oo/oooooooooooooooooooooooooooooo
+OOOOo*,***. . ...                .                                                                  =OOO.........[\ooooooooooooooooooooooooooooo
+OOOOoo*****. .....   ...       ..                                                         .         =OOO^        . . ..[\ooooooooooooooooooooooo
+OOOOOoo**..**.. ..........   ....                                                        ...  .     =OOO^ . ..     .  ..    .[[ooooooooooooooooo
+OOOOOo^**..*..oo\...............                                                         .......... =OOO^..  .       ...   .     ..[\ooooooooooo
+OOOOOo**..*...o\/ooo]............                                                         ..........=OOO`      .   .. ......            .,[ooooo
+OOOOo^**.....,`,oo/oo*,^.........                                                         ..... ....=OO^  .. .... ......  ....               ..[
+OOOOo^*......*oo/oooo***,`......                                                           `*....  .O/.         ..     ....     ....... ..   .
+OOOOo`*....../ooooooo`,\oo....                                                             =OOOOOOO/..               ..    .. . ....       ..
+OOOOo^*......oooooooo^=o/o`...    ...                                                       OOOOOOoo\`..........   ..   .....  . ..............

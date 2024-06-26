@@ -37,10 +37,47 @@ public class BaseEntity implements Serializable
 
     /** 备注 */
     private String remark;
+    /**
+     * 代理人
+     */
+    private String agencyUserName;
+
+    /**
+     * 用户名
+     */
+    private String userName;
+    /**
+     * 部门名
+     */
+    private String deptName;
 
     /** 请求参数 */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> params;
+
+    public String getDeptName() {
+        return deptName;
+    }
+
+    public void setDeptName(String deptName) {
+        this.deptName = deptName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getAgencyUserName() {
+        return agencyUserName;
+    }
+
+    public void setAgencyUserName(String agencyUserName) {
+        this.agencyUserName = agencyUserName;
+    }
 
     public String getSearchValue()
     {

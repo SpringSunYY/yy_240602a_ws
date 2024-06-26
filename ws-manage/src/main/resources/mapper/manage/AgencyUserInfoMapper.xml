@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yy.manage.mapper.AgencyUserInfoMapper">
+    
+    <resultMap type="AgencyUserInfo" id="AgencyUserInfoResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="prices"    column="prices"    />
+        <result property="proportion"    column="proportion"    />
+        <result property="remark"    column="remark"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectAgencyUserInfoVo">
+        select id, user_id, prices, proportion, remark, dept_id, create_by, create_time, update_time from tb_agency_user_info
+    </sql>
+
+    <select id="selectAgencyUserInfoList" parameterType="AgencyUserInfo" resultMap="AgencyUserInfoResult">
+        <include refid="selectAgencyUserInfoVo"/>
+        <where>  
+            <if test="id != null  and id != ''"> and id = #{id}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="prices != null "> and prices = #{prices}</if>
+            <if test="proportion != null "> and proportion = #{proportion}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="createBy != null  and createBy != ''"> and create_by like concat('%', #{createBy}, '%')</if>
+            <if test="params.beginCreateTime != null and params.beginCreateTime != '' and params.endCreateTime != null and params.endCreateTime != ''"> and create_time between #{params.beginCreateTime} and #{params.endCreateTime}</if>
+            <if test="params.beginUpdateTime != null and params.beginUpdateTime != '' and params.endUpdateTime != null and params.endUpdateTime != ''"> and update_time between #{params.beginUpdateTime} and #{params.endUpdateTime}</if>
+            <!-- 数据范围过滤 -->
+            ${params.dataScope}
+        </where>
+    </select>
+    
+    <select id="selectAgencyUserInfoById" parameterType="String" resultMap="AgencyUserInfoResult">
+        <include refid="selectAgencyUserInfoVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAgencyUserInfo" parameterType="AgencyUserInfo">
+        insert into tb_agency_user_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="prices != null">prices,</if>
+            <if test="proportion != null">proportion,</if>
+            <if test="remark != null">remark,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="prices != null">#{prices},</if>
+            <if test="proportion != null">#{proportion},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAgencyUserInfo" parameterType="AgencyUserInfo">
+        update tb_agency_user_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="prices != null">prices = #{prices},</if>
+            <if test="proportion != null">proportion = #{proportion},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAgencyUserInfoById" parameterType="String">
+        delete from tb_agency_user_info where id = #{id}
+    </delete>
+
+    <delete id="deleteAgencyUserInfoByIds" parameterType="String">
+        delete from tb_agency_user_info where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
