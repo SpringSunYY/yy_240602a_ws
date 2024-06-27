@@ -136,7 +136,7 @@
     </select>
     <select id="selectWithStatusNo4ANd5WsOrderInfoList" resultType="WsOrderInfo" resultMap="WsOrderInfoResult">
         <include refid="selectWsOrderInfoVo"/>
-        where status != '4' and status != '5' order by create_time desc
+        where status != '4' and status != '5' and status != '0' order by create_time desc
     </select>
 
     <insert id="insertWsOrderInfo" parameterType="WsOrderInfo">

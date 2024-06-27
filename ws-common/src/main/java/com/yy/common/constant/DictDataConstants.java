@@ -99,5 +99,14 @@ public class DictDataConstants {
      * ws类型苹果链
      */
     public static final String WS_TASK_TYPE_3 = "3";
+    /**
+     * ws上游订单使用状态 未使用
+     */
+    public static final String WS_UPSTREAM_TASK_STATUS_0="0";
+
+    /**
+     * ws上游订单使用状态 已使用
+     */
+    public static final String WS_UPSTREAM_TASK_STATUS_1="1";
 
 }

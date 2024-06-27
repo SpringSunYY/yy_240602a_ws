@@ -332,7 +332,7 @@ public class ApiTest {
 
     @Test
     public void test() {
-        String apiUrl = "https://waapi.qunfa.io/get_task_info/96394";
+        String apiUrl = "https://waapi.qunfa.io/get_task_info/96514";
         String apiToken = "1gMTLGE8FNFfhY6f0MPPCNJczeQLG5pj";
         String userId = "18";
         Map<String, Object> map = new HashMap<>();

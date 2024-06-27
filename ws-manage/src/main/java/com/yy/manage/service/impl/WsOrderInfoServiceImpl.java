@@ -82,9 +82,6 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
     private IAgencyUserInfoService agencyUserInfoService;
 
     @Autowired
-    private IOperationHistoryInfoService historyInfoService;
-
-    @Autowired
     private ICountryInfoService countryInfoService;
 
     @Autowired
@@ -287,6 +284,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
             HttpEntity taskResponseEntity = taskResponse.getEntity();
 
+            //TODO 修改创建订单逻辑
             if (StringUtils.isNotNull(taskEntry)) {
                 String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
                 //System.err.println("taskResult = " + taskResult);
@@ -932,18 +930,20 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             ReturnTaskVo returnTaskVo = JSON.parseObject(s, ReturnTaskVo.class);
             //System.out.println("returnTaskVo = " + returnTaskVo);
             Integer numSucc = returnTaskVo.getTask_info().getNum_succ();
-            //System.out.println("numSucc = " + numSucc);
+            System.out.println("numSucc = " + numSucc);
             //如果有完成数量，更新完成数量
             if (StringUtils.isNotNull(numSucc) && numSucc != 0) {
                 //判断完成比例为提交比例的多少
                 //先把两个数量转换为float
-                Float numSuccF = Float.parseFloat(numSucc.toString());
+                Float orderNumberF = Float.parseFloat(wsOrderInfo.getOrderNumber().toString());
                 Float actualNumberF = Float.parseFloat(wsOrderInfo.getActualNumber().toString());
-                Float ratio = actualNumberF / numSuccF;
-                wsOrderInfo.setActualNumber((long) (ratio * wsOrderInfo.getOptimizedNumber()));
+                Float ratio = orderNumberF / actualNumberF;
+                wsOrderInfo.setAccomplishNumber((long) (ratio * numSucc));
             }
+            System.out.println("wsOrderInfo = " + wsOrderInfo);
             wsOrderInfo.setStatus(returnTaskVo.getTask_info().getStatus());
             wsOrderInfo.setSendTime(returnTaskVo.getTask_info().getSend_time() != null ? new Date(Long.parseLong(returnTaskVo.getTask_info().getSend_time()) * 1000) : null);
+
             wsTaskUpdateTaskInfo(wsOrderInfo);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1004,9 +1004,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
         //获取成功和失败数量
         Object fileUrl = redisCache.getCacheConfig(WS_TASK_GET_FILE_API);
-        String apiUrl = fileUrl+"res_succ_"+wsOrderInfo.getTaskId()+".txt";
+        String apiUrl = fileUrl + "res_succ_" + wsOrderInfo.getTaskId() + ".txt";
         String userId = redisCache.getCacheConfig(WS_USER_ID);
-        String apiToken=redisCache.getCacheConfig(WS_API_TOKEN);
+        String apiToken = redisCache.getCacheConfig(WS_API_TOKEN);
         Map<String, Object> map = new HashMap<>();
         map.put("api_token", apiToken);
         map.put("user_id", userId);
@@ -1019,7 +1019,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        apiUrl = fileUrl+"res_fail_"+wsOrderInfo.getTaskId()+".txt";
+        apiUrl = fileUrl + "res_fail_" + wsOrderInfo.getTaskId() + ".txt";
         String[] failString = new String[]{};
         try {
             String s = sendJsonByGetReq(apiUrl, reqParams, "UTF-8");
