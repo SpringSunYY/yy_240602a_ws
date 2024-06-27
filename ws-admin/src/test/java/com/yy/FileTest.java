@@ -55,10 +55,10 @@ public class FileTest {
         File file = new File(filePath);
 
         System.out.println("file.getName() = " + file.getName());
-        System.out.println("file = " + file.getAbsolutePath());
+        //System.out.println("file = " + file.getAbsolutePath());
 
         // 检查文件存在性和可读性
-        System.out.println("file.exists() = " + file.exists());
+        //System.out.println("file.exists() = " + file.exists());
         System.out.println("file.isFile() = " + file.isFile());
         System.out.println("file.canRead() = " + file.canRead());
         // 使用BufferedReader读取文件行数

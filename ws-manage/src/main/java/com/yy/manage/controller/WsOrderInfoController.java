@@ -147,7 +147,7 @@ public class WsOrderInfoController extends BaseController
     @Log(title = "WS订单修改发送时间信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updateSendTime")
     public AjaxResult updateSendTime(@RequestBody WsOrderInfo wsOrderInfo){
-        System.out.println("wsOrderInfo = " + wsOrderInfo);
+        //System.out.println("wsOrderInfo = " + wsOrderInfo);
         return success(wsOrderInfoService.updateSendTime(wsOrderInfo));
     }
 
@@ -158,7 +158,7 @@ public class WsOrderInfoController extends BaseController
      * @return
      */
     @PreAuthorize("@ss.hasPermi('manage:wsOrderInfo:edit')")
-    @Log(title = "WS订单修改发送时间信息", businessType = BusinessType.UPDATE)
+    @Log(title = "WS订单修改状态信息", businessType = BusinessType.UPDATE)
     @PutMapping("/updateSendStatus")
     public AjaxResult updateSendStatus(@RequestBody WsOrderInfo wsOrderInfo) {
         return success(wsOrderInfoService.updateSendStatus(wsOrderInfo));

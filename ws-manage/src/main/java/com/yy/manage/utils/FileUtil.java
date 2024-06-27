@@ -60,7 +60,7 @@ public class FileUtil {
 
             // 计算需要的线程数
             int nThreads = (int) Math.ceil((double) totalLines / CHUNK_SIZE);
-            System.out.println("nThreads = " + nThreads);
+            //System.out.println("nThreads = " + nThreads);
 
             ExecutorService executorService = Executors.newFixedThreadPool(nThreads);
 
@@ -76,7 +76,7 @@ public class FileUtil {
             for (Future<Set<String>> future : futureResults) {
                 filteredNumbers.addAll(future.get());
             }
-            System.out.println("filteredNumbers = " + filteredNumbers);
+            //System.out.println("filteredNumbers = " + filteredNumbers);
 
             List<String> filteredList = new ArrayList<>(filteredNumbers);
 
@@ -86,7 +86,7 @@ public class FileUtil {
             // 计算需要保留和丢弃的数量
             int totalSize = filteredList.size();
             int retainSize = (int) (totalSize * 0.9);
-            System.out.println("retainSize = " + retainSize);
+            //System.out.println("retainSize = " + retainSize);
 
             // 划分保留和丢弃的号码
             List<String> retainedNumbers = filteredList.subList(0, retainSize);
@@ -125,11 +125,20 @@ public class FileUtil {
         }
     }
 
-    private static void createDirectoryIfNotExists(String filePath) throws IOException {
+    /**
+     * @description: 判断文件是否存在，不存在创建文件
+     * @author: YY
+     * @method: createDirectoryIfNotExists
+     * @date: 2024/6/27 14:30
+     * @param:
+     * @param: filePath
+     * @return: void
+     **/
+    public static void createDirectoryIfNotExists(String filePath) throws IOException {
         Path path = Paths.get(filePath).getParent();
-        System.out.println("path = " + path);
+        //System.out.println("path = " + path);
         if (path != null && !Files.exists(path)) {
-            System.out.println("path = " + path);
+            //System.out.println("path = " + path);
             Files.createDirectories(path);
         }
         Path fileNamePath = Paths.get(filePath);

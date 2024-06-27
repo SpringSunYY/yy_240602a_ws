@@ -114,7 +114,7 @@ public class OrderInfoController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:orderInfo:optimize')")
     @GetMapping("/optimize")
     public AjaxResult optimize() {
-        System.out.println(" 优化订单");
+        //System.out.println(" 优化订单");
         return toAjax(orderInfoService.optimize());
     }
 }

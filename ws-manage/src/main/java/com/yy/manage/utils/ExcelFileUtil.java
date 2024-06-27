@@ -26,8 +26,9 @@ import java.util.List;
  */
 public class ExcelFileUtil {
 
-    public static Long writeExcelFile(String[] successFile, String discardedFilePath,Long numbers , String[] failureFile,String outputFilePath) {
+    public static Long writeExcelFile(String[] successFile, String discardedFilePath, Long numbers, String[] failureFile, String outputFilePath) {
         try {
+            FileUtil.createDirectoryIfNotExists(discardedFilePath);
             List<String> successNumbersWithoutTimestamps = readTxtFile(discardedFilePath);
             List<String[]> successNumbers = parseNumbersWithTimestamps(successFile);
             List<String[]> noTimestampNumbers = parseNumbers(successNumbersWithoutTimestamps);
@@ -39,25 +40,25 @@ public class ExcelFileUtil {
             int totalSuccessNumbers = successNumbers.size();
             double successRatio = (double) totalSuccessNumbers / numbers;
             int successCount = (int) Math.round(noTimestampNumbers.size() * successRatio);
-            System.out.println("successCount = " + successCount);
+//            System.out.println("successCount = " + successCount);
             if (successCount > noTimestampNumbers.size()) {
                 successCount = noTimestampNumbers.size();
             }
             int failureCount = noTimestampNumbers.size() - successCount;
-            System.out.println("failureCount = " + successCount);
+//            System.out.println("failureCount = " + successCount);
 
             // 分割成功和失败的号码
             List<String[]> successList = new ArrayList<>(noTimestampNumbers.subList(0, successCount));
-            System.out.println("successList.size() = " + successList.size());
+            //System.out.println("successList.size() = " + successList.size());
             List<String[]> failureList = new ArrayList<>(noTimestampNumbers.subList(successCount, noTimestampNumbers.size()));
-            System.out.println("failureList = " + failureList.size());
+            //System.out.println("failureList = " + failureList.size());
             // 为成功的号码分配时间戳
             assignTimestamps(successList, successNumbers);
 
             // 合并所有成功的号码
             List<String[]> allSuccessNumbers = new ArrayList<>(successNumbers);
             allSuccessNumbers.addAll(successList);
-            System.out.println("allSuccessNumbers = " + allSuccessNumbers.size());
+            //System.out.println("allSuccessNumbers = " + allSuccessNumbers.size());
 
             // 按发送时间排序
             sortSuccessNumbersByTimestamp(allSuccessNumbers);
@@ -70,10 +71,9 @@ public class ExcelFileUtil {
             for (String[] failureNumber : failureList) {
                 allFailureNumbers.add(new String[]{failureNumber[0], "offline"});
             }
-
             // 写入 Excel 文件
             writeExcel(allSuccessNumbers, failureFile, outputFilePath);
-            return (long) (allFailureNumbers.size()+allSuccessNumbers.size());
+            return (long) (allFailureNumbers.size() + allSuccessNumbers.size());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -120,6 +120,8 @@ public class ExcelFileUtil {
     }
 
     private static void writeExcel(List<String[]> successNumbers, String[] failureNumbers, String outputFilePath) throws IOException {
+        //判断文件是否存在不存在创建文件
+        FileUtil.createDirectoryIfNotExists(outputFilePath);
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet successSheet = workbook.createSheet("成功");
         XSSFSheet failureSheet = workbook.createSheet("失败");

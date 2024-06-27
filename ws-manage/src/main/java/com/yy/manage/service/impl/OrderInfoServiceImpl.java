@@ -278,7 +278,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
             //查询到代理人
             SysDept sysDept = deptService.selectDeptById(orderInfo.getDeptId());
             SysUser agencyUser = userService.selectUserByUserName(sysDept.getLeader() != null ? sysDept.getLeader() : null);
-            System.out.println("agencyUser = " + agencyUser);
+            //System.out.println("agencyUser = " + agencyUser);
             if (StringUtils.isNotNull(agencyUser)) {
                 //如果有代理人则更新
                 //计算平台公告的税率
@@ -358,7 +358,7 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         Long maxLine = 0L;
         try {
             String maxLineStr = redisCache.getCacheConfig(WS_NOTE_MAX_LINE);
-            System.out.println("maxLineStr = " + maxLineStr);
+            //System.out.println("maxLineStr = " + maxLineStr);
             maxLine = Long.valueOf(maxLineStr);
 
         } catch (Exception e) {
@@ -569,9 +569,9 @@ public class OrderInfoServiceImpl implements IOrderInfoService {
         Float exchangeLine = 0F;
         try {
             String exchangeLineStr = redisCache.getCacheConfig(WS_NOTE_FILTER_EXCHANGE_LINE);
-            System.out.println("exchangeLineStr = " + exchangeLineStr);
+            //System.out.println("exchangeLineStr = " + exchangeLineStr);
             exchangeLine = Float.valueOf(exchangeLineStr);
-            System.out.println("exchangeLine = " + exchangeLine);
+            //System.out.println("exchangeLine = " + exchangeLine);
         } catch (Exception e) {
             throw new ServiceException("请让管理员设置正确的保留短信比例，0-1之间!!!");
         }

@@ -146,6 +146,11 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (StringUtils.isNotNull(countryInfo)) {
                 info.setCountryName(countryInfo.getName());
             }
+            //判断是否有查看隐藏文件权限
+            if (!SecurityUtils.hasPermi("manage:wsOrderInfo:discardedFile")) {
+                info.setDiscardedFile(null);
+                info.setFileFilter(null);
+            }
         }
         return wsOrderInfos;
     }
@@ -197,9 +202,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             wsOrderInfo.setCreateTime(DateUtils.getNowDate());
             wsOrderInfo.setStatus(WS_TASK_STATUS_0);
             wsOrderInfoMapper.insertWsOrderInfo(wsOrderInfo);
-            System.out.println("插入");
+            //System.out.println("插入");
         }
-        System.out.println("不插入");
+        //System.out.println("不插入");
         //创建订单
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.submit(() -> {
@@ -487,9 +492,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         Float exchangeLine = 0F;
         try {
             String exchangeLineStr = redisCache.getCacheConfig(WS_NOTE_FILTER_EXCHANGE_LINE);
-            System.out.println("exchangeLineStr = " + exchangeLineStr);
+            //System.out.println("exchangeLineStr = " + exchangeLineStr);
             exchangeLine = Float.valueOf(exchangeLineStr);
-            System.out.println("exchangeLine = " + exchangeLine);
+            //System.out.println("exchangeLine = " + exchangeLine);
         } catch (Exception e) {
             throw new ServiceException("请让管理员设置正确的保留短信比例，0-1之间!!!");
         }
@@ -577,13 +582,15 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             //执行更新订单内容并更新到上游平台 //异步去执行
             ExecutorService executorService = Executors.newFixedThreadPool(1);
             executorService.submit(() -> executeUpdate(wsOrderInfo));
-            System.out.println("executorService = " + executorService);
+            //System.out.println("executorService = " + executorService);
             return 1;
         }
-        System.out.println("继续执行");
+        //System.out.println("继续执行");
 
         //判断状态是否为已完成 或者为已终止
         if (wsOrderInfo.getStatus().equals(WS_TASK_STATUS_5) || wsOrderInfo.getStatus().equals(WS_TASK_STATUS_4)) {
+            //计算当前完成的数量
+            getSuccess(wsOrderInfo);
             //退还积分
             returnIntegral(wsOrderInfo);
         }
@@ -639,31 +646,23 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (StringUtils.isNotNull(taskEntry)) {
                 String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
                 System.err.println("taskResult = " + taskResult);
-                returnTaskVo= JSON.parseObject(taskResult,ReturnTaskVo.class);
+                returnTaskVo = JSON.parseObject(taskResult, ReturnTaskVo.class);
             }
             //判断返回是否正确
-            if (StringUtils.isNotNull(returnTaskVo)&&!returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
+            if (StringUtils.isNotNull(returnTaskVo) && !returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
                 wsOrderInfoMapper.updateWsOrderInfo(wsOrderInfo);
             }
             taskResponse.close();
         } catch (Exception e) { //如果有报错不更新
 //            wsOrderInfoMapper.deleteWsOrderInfoById(wsOrderInfo.getId());
-            System.out.println("抛出异常");
+            //System.out.println("抛出异常");
             System.err.println("e = " + e.getMessage());
             throw new ServiceException("更新订单失败！！！");
         }
     }
 
-    /**
-     * @description: 执行订单以及完成操作 退还积分
-     * @author: YY
-     * @method: returnIntegral
-     * @date: 2024/6/19 17:41
-     * @param:
-     * @param: wsOrderInfo
-     * @return: void
-     **/
-    private void returnIntegral(WsOrderInfo wsOrderInfo) {
+
+    public void returnIntegral(WsOrderInfo wsOrderInfo) {
         wsOrderInfo.setEndTime(new Date());
         //为已完成 或者已终止
         //获取成功文件 失败的文件
@@ -717,7 +716,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
                 throw new ServiceException("全局短信转换率为空，请联系管理员！！！");
             }
             noteExchangeBig = BigDecimal.valueOf(Float.parseFloat(noteExchange));
-            BigDecimal multiplied = noteExchangeBig.multiply(BigDecimal.valueOf(wsOrderInfo.getActualNumber()));
+            BigDecimal multiplicand = BigDecimal.valueOf(wsOrderInfo.getAccomplishNumber());
+//            System.out.println("multiplicand = " + multiplicand);
+            BigDecimal multiplied = noteExchangeBig.multiply(multiplicand);
             //计算所得积分
             BigDecimal subtracted = wsOrderInfo.getActualIntegral().subtract(multiplied);
             //判断冻结积分是否小于0
@@ -794,7 +795,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             System.err.println("taskId = " + taskId);
             String s = sendJsonByGetReq(url + "/" + taskId, reqParams, "UTF-8");
             ReturnTaskVo returnTaskVo = JSON.parseObject(s, ReturnTaskVo.class);
-            System.out.println("returnTaskVo = " + returnTaskVo);
+            //System.out.println("returnTaskVo = " + returnTaskVo);
             //判断状态是否相同 相同直接返回
             String status = returnTaskVo.getTask_info().getStatus();
             if (status.equals(wsOrderInfo.getStatus())) {
@@ -848,7 +849,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         Long maxLine = 0L;
         try {
             String maxLineStr = redisCache.getCacheConfig(WS_NOTE_MAX_LINE);
-            System.out.println("maxLineStr = " + maxLineStr);
+            //System.out.println("maxLineStr = " + maxLineStr);
             maxLine = Long.valueOf(maxLineStr);
 
         } catch (Exception e) {
@@ -875,7 +876,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             ReturnTaskVo returnTaskVo = JSON.parseObject(s, ReturnTaskVo.class);
             return returnTaskVo.getNew_task_status();
         } catch (Exception e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
+            //System.out.println("e.getMessage() = " + e.getMessage());
             throw new ServiceException("获取失败！！！");
         }
     }
@@ -926,13 +927,12 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         map.put("user_id", userId);
         String reqParams = JSON.toJSONString(map);
         try {
-            System.out.println("taskId = " + taskId);
+            //System.out.println("taskId = " + taskId);
             String s = sendJsonByGetReq(url + "/" + taskId, reqParams, "UTF-8");
             ReturnTaskVo returnTaskVo = JSON.parseObject(s, ReturnTaskVo.class);
-            System.out.println("returnTaskVo = " + returnTaskVo);
-            //判断状态是否相同 相同直接返回
+            //System.out.println("returnTaskVo = " + returnTaskVo);
             Integer numSucc = returnTaskVo.getTask_info().getNum_succ();
-            System.out.println("numSucc = " + numSucc);
+            //System.out.println("numSucc = " + numSucc);
             //如果有完成数量，更新完成数量
             if (StringUtils.isNotNull(numSucc) && numSucc != 0) {
                 //判断完成比例为提交比例的多少
@@ -1004,9 +1004,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
         //获取成功和失败数量
         Object fileUrl = redisCache.getCacheConfig(WS_TASK_GET_FILE_API);
-        String apiUrl = "https://wa.qunfa.io/files/res_succ_90613.txt";
-        String apiToken = "1gMTLGE8FNFfhY6f0MPPCNJczeQLG5pj";
-        String userId = "18";
+        String apiUrl = fileUrl+"res_succ_"+wsOrderInfo.getTaskId()+".txt";
+        String userId = redisCache.getCacheConfig(WS_USER_ID);
+        String apiToken=redisCache.getCacheConfig(WS_API_TOKEN);
         Map<String, Object> map = new HashMap<>();
         map.put("api_token", apiToken);
         map.put("user_id", userId);
@@ -1014,15 +1014,12 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         String[] succString = new String[]{};
         try {
             String s = sendJsonByGetReq(apiUrl, reqParams, "UTF-8");
-            System.out.println(s);
+            //System.out.println(s);
             succString = s.split("\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
-        for (String s : succString) {
-            System.out.println("su = " + s);
-        }
-        apiUrl = "https://waapi.qunfa.io/files/res_fail_90613.txt";
+        apiUrl = fileUrl+"res_fail_"+wsOrderInfo.getTaskId()+".txt";
         String[] failString = new String[]{};
         try {
             String s = sendJsonByGetReq(apiUrl, reqParams, "UTF-8");
@@ -1030,12 +1027,13 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (!containsNonNumeric(s)) {
                 failString = s.split("\n");
             } else {
-                System.out.println("响应包含非数字字符，不赋值给failString。");
+                System.out.println("响应包含非数字字符，不赋值给failString");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         Long fileNumbers = ExcelFileUtil.writeExcelFile(succString, discardedFilePath, wsOrderInfo.getOrderNumber(), failString, inputSuccessFilePath);
+        //System.out.println("fileNumbers = " + fileNumbers);
         wsOrderInfo.setAccomplishNumber(fileNumbers);
         wsOrderInfo.setResSuccFile(successFilePath);
     }
@@ -1049,7 +1047,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
     @Override
     public int updateSendTime(WsOrderInfo wsOrderInfo) {
-        judgeStatusIs4Or5(wsOrderInfo);
+        judgeStatusIs4Or5Or0(wsOrderInfo);
         //判断当前状态是否为待发送
         System.err.println("wsOrderInfo = " + wsOrderInfo);
         if (!wsOrderInfo.getStatus().equals(WS_TASK_STATUS_1)) {
@@ -1058,19 +1056,20 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         }
         //创建异步发送订单
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        executorService.submit(()->executeUpdateSendTime(wsOrderInfo));
+        executorService.submit(() -> executeUpdateSendTime(wsOrderInfo));
         return 1;
     }
 
     /**
-     * 判断订单是否已完成或者终止
+     * 判断订单是否已完成或者终止以及未成功
+     *
      * @param wsOrderInfo
      */
-    private void judgeStatusIs4Or5(WsOrderInfo wsOrderInfo) {
+    private void judgeStatusIs4Or5Or0(WsOrderInfo wsOrderInfo) {
         //判断以前状态 是否为已终止或者已完成
         WsOrderInfo oldOrderInfo = wsOrderInfoMapper.selectWsOrderInfoById(wsOrderInfo.getId());
-        if (oldOrderInfo.getStatus().equals(WS_TASK_STATUS_5)||oldOrderInfo.getStatus().equals(WS_TASK_STATUS_4)) {
-            throw new ServiceException("当前订单已经完成！！！");
+        if (oldOrderInfo.getStatus().equals(WS_TASK_STATUS_5) || oldOrderInfo.getStatus().equals(WS_TASK_STATUS_4) || oldOrderInfo.getStatus().equals(WS_TASK_STATUS_0)) {
+            throw new ServiceException("当前订单已经完成或者未成功，不可修改状态！！！");
         }
     }
 
@@ -1114,10 +1113,10 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (StringUtils.isNotNull(taskEntry)) {
                 String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
 //                System.err.println("taskResult = " + taskResult);
-                returnTaskVo= JSON.parseObject(taskResult,ReturnTaskVo.class);
+                returnTaskVo = JSON.parseObject(taskResult, ReturnTaskVo.class);
             }
             //判断返回是否正确
-            if (StringUtils.isNotNull(returnTaskVo)&&!returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
+            if (StringUtils.isNotNull(returnTaskVo) && !returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
                 wsOrderInfo.setUpdateTime(DateUtils.getNowDate());
                 wsOrderInfoMapper.updateWsOrderInfo(wsOrderInfo);
             }
@@ -1131,14 +1130,14 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
     @Override
     public int updateSendStatus(WsOrderInfo wsOrderInfo) {
         //判断以前状态 是否为已终止或者已完成
-        judgeStatusIs4Or5(wsOrderInfo);
+        judgeStatusIs4Or5Or0(wsOrderInfo);
         //判断传来的状态是否不是234
-        if (!wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_4)&&!wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_3)&&!wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_2)) {
+        if (!wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_4) && !wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_3) && !wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_2)) {
             throw new ServiceException("当前订单状态不正确，状态只能修改为发送中、暂停、终止！！！");
         }
         //创建异步更新
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-        executorService.submit(()->executeUpdateSendStatus(wsOrderInfo));
+        executorService.submit(() -> executeUpdateSendStatus(wsOrderInfo));
         return 1;
     }
 
@@ -1182,10 +1181,14 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (StringUtils.isNotNull(taskEntry)) {
                 String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
 //                System.err.println("taskResult = " + taskResult);
-                returnTaskVo= JSON.parseObject(taskResult,ReturnTaskVo.class);
+                returnTaskVo = JSON.parseObject(taskResult, ReturnTaskVo.class);
             }
             //判断返回是否正确
-            if (StringUtils.isNotNull(returnTaskVo)&&!returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
+            if (StringUtils.isNotNull(returnTaskVo) && !returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
+                //重新获取订单状态保证状态一致
+                String taskInfoUrl = redisCache.getCacheConfig(WS_TASK_INFO_URL);
+                wsTaskGetTaskInfo(wsOrderInfo, taskInfoUrl, userId, apiToken);
+
                 //判断状态是否为已终止
                 if (wsOrderInfo.getStatus().equals(WS_TASK_STATUS_4)) {
                     //计算当前完成的数量
