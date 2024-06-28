@@ -146,6 +146,16 @@ public class WsOrderInfo extends BaseEntity
     @Excel(name = "返回文件")
     private String resSuccFile;
 
+    private boolean isJudge=true;
+
+    public boolean isJudge() {
+        return isJudge;
+    }
+
+    public void setJudge(boolean judge) {
+        isJudge = judge;
+    }
+
     private String outPutFilePath;
 
     public String getResSuccFile() {

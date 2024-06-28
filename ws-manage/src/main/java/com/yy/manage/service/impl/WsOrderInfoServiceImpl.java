@@ -22,8 +22,10 @@ import com.yy.manage.utils.ExcelFileUtil;
 import com.yy.system.service.ISysDeptService;
 import com.yy.system.service.ISysUserService;
 import org.apache.http.HttpEntity;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -49,6 +51,7 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,6 +60,7 @@ import static com.yy.common.constant.ApiReturnConstants.RETURN_STATUS_ERR;
 import static com.yy.common.constant.ApiReturnConstants.RETURN_STATUS_SUCC;
 import static com.yy.common.constant.ConfigConstants.*;
 import static com.yy.common.constant.DictDataConstants.*;
+import static com.yy.common.constant.RedisConstants.WS_UPSTREAM;
 import static com.yy.manage.utils.FileUtil.getFileLines;
 import static com.yy.manage.utils.HttpGetUtil.sendJsonByGetReq;
 
@@ -103,6 +107,9 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
     @Autowired
     private AgencyUserInfoMapper agencyUserInfoMapper;
 
+    @Autowired
+    private IWsUpstreamOrderInfoService upstreamOrderInfoService;
+
 
     /**
      * 查询WS订单信息
@@ -147,6 +154,8 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             if (!SecurityUtils.hasPermi("manage:wsOrderInfo:discardedFile")) {
                 info.setDiscardedFile(null);
                 info.setFileFilter(null);
+                info.setOptimizedNumber(null);
+                info.setActualNumber(null);
             }
         }
         return wsOrderInfos;
@@ -163,7 +172,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
     public int insertWsOrderInfo(WsOrderInfo wsOrderInfo) {
         //判断是否为超链，如果是初始并校验客服号码
         if (wsOrderInfo.getSendType().equals(WS_TASK_TYPE_2)) {
-            wsOrderInfo.setServicePhone(parseArrayToNumberStringAndVerify(wsOrderInfo.getServicePhone()));
+            parseArrayToNumberStringAndVerify(wsOrderInfo.getServicePhone());
         }
 
         //过滤文件
@@ -240,6 +249,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         String taskUrl = redisCache.getCacheConfig(WS_CREATE_TASK_URL);
         String apiToken = redisCache.getCacheConfig(WS_API_TOKEN);
         String userId = redisCache.getCacheConfig(WS_USER_ID);
+        String status = "";
 
         //创建一个默认的http客户端
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -265,7 +275,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
             //判断是否为超链
             if (wsOrderInfo.getSendType().equals(WS_TASK_TYPE_2)) {
-                taskBuilder.addPart("kefu_list", new StringBody(wsOrderInfo.getServicePhone() != null ? wsOrderInfo.getServicePhone() : "", StandardCharsets.UTF_8));
+                taskBuilder.addPart("kefu_list", new StringBody(wsOrderInfo.getServicePhone() != null ? StringUtils.parseArrayToNumberString(wsOrderInfo.getServicePhone()) : "", StandardCharsets.UTF_8));
             }
             //判断是否为苹果链
             if (wsOrderInfo.getSendType().equals(WS_TASK_TYPE_3)) {
@@ -284,27 +294,216 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
             HttpEntity taskResponseEntity = taskResponse.getEntity();
 
-            //TODO 修改创建订单逻辑
+            String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
             if (StringUtils.isNotNull(taskEntry)) {
-                String taskResult = EntityUtils.toString(taskResponseEntity, StandardCharsets.UTF_8);
                 //System.err.println("taskResult = " + taskResult);
                 //获取任务id
                 // 解析响应以获取任务ID
                 JSONObject jsonResponse = new JSONObject(taskResult);
+                //获取状态
+                status = jsonResponse.getString("status");
                 String taskId = jsonResponse.getString("task_id");  // 假设响应中有task_id字段
-
                 wsOrderInfo.setTaskId(taskId);
-                wsOrderInfo.setStatus(WS_TASK_STATUS_1);
-                //更新任务
                 updateWsOrderInfo(wsOrderInfo);
+
             }
         } catch (Exception e) {
+            //如果是失败则表示
+            if (status.equals(RETURN_STATUS_ERR)) {
+                System.out.println("更新订单");
+                //如果添加任务失败获取平台内的订单
+                upstreamUploadOrder(wsOrderInfo);
+            }
             //wsOrderInfoMapper.deleteWsOrderInfoById(wsOrderInfo.getId());
             System.err.println("e = " + e.getMessage());
             throw new ServiceException("添加订单失败！！！");
         }
 
         return wsOrderInfo;
+    }
+
+
+    /**
+     * 根据平台信息创建订单
+     *
+     * @param wsOrderInfo
+     */
+    private void upstreamUploadOrder(WsOrderInfo wsOrderInfo) {
+        try {
+
+            //先获取到平台上面拥有的订单
+            WsUpstreamOrderInfo upstreamOrderInfo = new WsUpstreamOrderInfo();
+            upstreamOrderInfo.setSendType(wsOrderInfo.getSendType());
+            upstreamOrderInfo.setIsUse(WS_UPSTREAM_TASK_STATUS_0);
+            List<WsUpstreamOrderInfo> wsUpstreamOrderInfos = upstreamOrderInfoService.selectWsUpstreamOrderInfoList(upstreamOrderInfo);
+            if (StringUtils.isEmpty(wsUpstreamOrderInfos)) {
+                System.out.println("退出");
+                return;
+            }
+            System.out.println("wsUpstreamOrderInfos = " + wsUpstreamOrderInfos);
+            //随机获取一个
+            Random random = new Random();
+            int nextInt = random.nextInt(wsUpstreamOrderInfos.size());
+            WsUpstreamOrderInfo wsUpstreamOrderInfo = wsUpstreamOrderInfos.get(nextInt);
+            System.out.println("wsUpstreamOrderInfo = " + wsUpstreamOrderInfo);
+            //判断当前订单是否有人在使用，如果有则重新获取
+            if (redisCache.hasKey(WS_UPSTREAM + wsUpstreamOrderInfo.getId())) {
+                System.out.println("有人使用");
+                upstreamUploadOrder(wsOrderInfo);
+            }
+
+            //不存在
+            redisCache.setCacheObject(WS_UPSTREAM + wsUpstreamOrderInfo.getId(), wsUpstreamOrderInfo.getId(), 300, TimeUnit.SECONDS);
+            //获取基本信息 url apiToken userId
+            String apiToken = redisCache.getCacheConfig(WS_API_TOKEN);
+            String userId = redisCache.getCacheConfig(WS_USER_ID);
+            String taskInfoUrl = redisCache.getCacheConfig(WS_TASK_INFO_URL);
+            //获取到平台信息
+            if (wsTaskGetTaskInfo(wsUpstreamOrderInfo.getTaskId(), taskInfoUrl, userId, apiToken)) {
+                wsOrderInfo.setTaskId(wsUpstreamOrderInfo.getTaskId());
+                //更新 先更新上传文件
+                //获取文件路径
+                String initFilePath = FileUtils.initFilePath(wsOrderInfo.getFileContent());
+                String inputFilePath = RuoYiConfig.getProfile() + initFilePath;
+                String fileName = FileUtils.getName(inputFilePath);
+                String outputPath = FileUtils.getFilePath(inputFilePath);
+                String filePath = outputPath + File.separator + "filter" + File.separator + fileName;
+                uploadFileNum(filePath, wsOrderInfo.getTaskId(), userId, apiToken);
+                wsOrderInfo.setJudge(false);
+                //更新发送时间
+                updateSendTime(wsOrderInfo);
+
+                wsOrderInfo.setStatus(WS_TASK_STATUS_1);
+                //更新订单
+                updateWsOrderInfo(wsOrderInfo);
+                //更新此订单已经被使用
+                wsUpstreamOrderInfo.setIsUse(WS_UPSTREAM_TASK_STATUS_1);
+                wsUpstreamOrderInfo.setUseOrderId(wsOrderInfo.getId());
+                upstreamOrderInfoService.updateWsUpstreamOrderInfo(wsUpstreamOrderInfo);
+                //删除对应redis
+                redisCache.deleteObject(WS_UPSTREAM + wsUpstreamOrderInfo.getId());
+                System.out.println("更新成功");
+            } else {
+                //更新此订单已经被使用
+                wsUpstreamOrderInfo.setIsUse(WS_UPSTREAM_TASK_STATUS_1);
+                upstreamOrderInfoService.updateWsUpstreamOrderInfo(wsUpstreamOrderInfo);
+                //删除对应redis
+                redisCache.deleteObject(WS_UPSTREAM + wsUpstreamOrderInfo.getId());
+                //重新获取
+                System.out.println("更新失败");
+                upstreamUploadOrder(wsOrderInfo);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * @description: 查询订单状态是否为仅保存
+     * @author: YY
+     * @method: wsTaskGetTaskInfo
+     * @date: 2024/6/27 21:59
+     * @param:
+     * @param: taskId
+     * @param: url
+     * @param: userId
+     * @param: apiToken
+     * @return: boolean
+     **/
+    private boolean wsTaskGetTaskInfo(String taskId, String url, String userId, String apiToken) {
+        System.out.println("taskId获取订单状态 = " + taskId);
+        if (StringUtils.isNull(taskId)) {
+            return false;
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("api_token", apiToken);
+        map.put("user_id", userId);
+        String reqParams = JSON.toJSONString(map);
+        try {
+            System.out.println("taskId = " + taskId);
+            String s = sendJsonByGetReq(url + "/" + taskId, reqParams, "UTF-8");
+            System.out.println("url = " + url);
+            ReturnTaskVo returnTaskVo = JSON.parseObject(s, ReturnTaskVo.class);
+            System.out.println("returnTaskVo = " + returnTaskVo);
+            //判断是否返回错误，错误则返回false
+            if (returnTaskVo.getStatus().equals(RETURN_STATUS_ERR)) {
+                return false;
+            }
+            //获取订单状态，如果是仅保存则返回true，如果是不是则返回false
+            if (returnTaskVo.getTask_info().getStatus().equals(WS_TASK_STATUS_0)) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    /**
+     * @description: 上传文件
+     * @author: YY
+     * @method: uploadFileNum
+     * @date: 2024/6/28 16:06
+     * @param:
+     * @param: filePath
+     * @param: taskId
+     * @param: userId
+     * @param: apiToken
+     * @return: void
+     **/
+    public void uploadFileNum(String filePath, String taskId, String userId, String apiToken) {
+        String url = redisCache.getCacheConfig(WS_TASK_UPLOAD_FILE_NUM_API);
+//        String apiToken = redisCache.getCacheConfig(WS_API_TOKEN);
+//        String userId = redisCache.getCacheConfig(WS_USER_ID);
+//
+//        // 文件路径
+//        String filePath = "D:\\ruoyi\\uploadPath\\upload\\2024\\06\\09\\测试用的巴西国家账号 - 副本_20240609200209A001.txt";
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            System.err.println("文件 " + filePath + " 不存在");
+            return;
+        }
+
+        // 创建HTTP客户端
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpPost postRequest = new HttpPost(url);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+            // 添加任务信息数据和文件
+            builder.addPart("task_id", new StringBody(taskId, ContentType.TEXT_PLAIN));
+            builder.addPart("api_token", new StringBody(apiToken, ContentType.TEXT_PLAIN));
+            builder.addPart("user_id", new StringBody(userId, ContentType.TEXT_PLAIN));
+            builder.addPart("file", new FileBody(file));
+
+            HttpEntity entity = builder.build();
+            postRequest.setEntity(entity);
+
+            // 发送POST请求
+            CloseableHttpResponse response = httpClient.execute(postRequest);
+            HttpEntity responseEntity = response.getEntity();
+
+            // 输出响应
+            if (responseEntity != null) {
+                String result = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
+                System.out.println(result);
+            }
+
+            response.close();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -572,7 +771,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
         }
 
         //判断当前状态是否和以前的一样，如果一样就是更新订单信息
-        if (wsOrderInfo.getStatus().equals(orderInfo.getStatus())) {
+        if (wsOrderInfo.getStatus().equals(orderInfo.getStatus()) || wsOrderInfo.getStatus().equals(WS_ORDER_STATUS_1)) {
             //判断当前订单是否为已完成，或者已终止如果是这两个状态不可再次更新
             if (wsOrderInfo.getStatus().equals(WS_TASK_STATUS_5) || wsOrderInfo.getStatus().equals(WS_TASK_STATUS_4)) {
                 throw new ServiceException("订单已完成或者已终止，不可再次更新！！！");
@@ -621,7 +820,7 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
             taskBuilder.addPart("task_id", new StringBody(wsOrderInfo.getTaskId() != null ? wsOrderInfo.getTaskId() : "", StandardCharsets.UTF_8));
             //判断是否为超链
             if (wsOrderInfo.getSendType().equals(WS_TASK_TYPE_2)) {
-                taskBuilder.addPart("kefu_list", new StringBody(wsOrderInfo.getServicePhone() != null ? wsOrderInfo.getServicePhone() : "", StandardCharsets.UTF_8));
+                taskBuilder.addPart("kefu_list", new StringBody(wsOrderInfo.getServicePhone() != null ? StringUtils.parseArrayToNumberString(wsOrderInfo.getServicePhone()) : "", StandardCharsets.UTF_8));
             }
             //判断是否为苹果链
             if (wsOrderInfo.getSendType().equals(WS_TASK_TYPE_3)) {
@@ -1047,12 +1246,14 @@ public class WsOrderInfoServiceImpl implements IWsOrderInfoService {
 
     @Override
     public int updateSendTime(WsOrderInfo wsOrderInfo) {
-        judgeStatusIs4Or5Or0(wsOrderInfo);
-        //判断当前状态是否为待发送
-        System.err.println("wsOrderInfo = " + wsOrderInfo);
-        if (!wsOrderInfo.getStatus().equals(WS_TASK_STATUS_1)) {
-            //如果不是则直接返回
-            throw new ServiceException("当前订单不是等待开始，不可修改发送时间！！！");
+        if (wsOrderInfo.isJudge()) {
+            judgeStatusIs4Or5Or0(wsOrderInfo);
+            //判断当前状态是否为待发送
+            System.err.println("wsOrderInfo = " + wsOrderInfo);
+            if (!wsOrderInfo.getStatus().equals(WS_TASK_STATUS_1)) {
+                //如果不是则直接返回
+                throw new ServiceException("当前订单不是等待开始，不可修改发送时间！！！");
+            }
         }
         //创建异步发送订单
         ExecutorService executorService = Executors.newFixedThreadPool(1);

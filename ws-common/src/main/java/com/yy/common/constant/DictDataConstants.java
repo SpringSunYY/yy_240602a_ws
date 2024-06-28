@@ -64,7 +64,7 @@ public class DictDataConstants {
     public static final String WS_ORDER_STATUS_4 = "4";
 
     /**
-     * ws订单未创建成功
+     * ws订单未创建成功 上游平台仅保存
      */
     public static final String WS_TASK_STATUS_0 = "0";
     /**

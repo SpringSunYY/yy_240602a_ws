@@ -73,7 +73,7 @@ public class ExcelFileUtil {
             }
             // 写入 Excel 文件
             writeExcel(allSuccessNumbers, failureFile, outputFilePath);
-            return (long) (allFailureNumbers.size() + allSuccessNumbers.size());
+            return successNumbers.size() == 0 ? 0 : (long) (allFailureNumbers.size() + allSuccessNumbers.size());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -84,10 +84,17 @@ public class ExcelFileUtil {
     }
 
     private static List<String[]> parseNumbersWithTimestamps(String[] lines) {
+        if (StringUtils.isEmpty(lines)) {
+            return Collections.emptyList();
+        }
         List<String[]> numbers = new ArrayList<>();
         for (String line : lines) {
-            String[] parts = line.split("----");
-            numbers.add(new String[]{parts[0].trim(), parts[1].trim()});
+            try {
+                String[] parts = line.split("----");
+                numbers.add(new String[]{parts[0].trim(), parts[1].trim()});
+            } catch (Exception e) {
+                return Collections.emptyList();
+            }
         }
         return numbers;
     }

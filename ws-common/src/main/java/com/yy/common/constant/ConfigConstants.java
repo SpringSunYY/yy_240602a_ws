@@ -70,4 +70,8 @@ public class ConfigConstants {
      * 更新订单状态api
      */
     public static final String WS_TASK_UPDATE_STATUS_API = "ws.task.update.status.api";
+    /**
+     * 上传文件号码
+     */
+    public static final String WS_TASK_UPLOAD_FILE_NUM_API = "ws.task.upload.fileNum.api";
 }

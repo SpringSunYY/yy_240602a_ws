@@ -120,6 +120,7 @@ public class WsUpstreamOrderInfoServiceImpl implements IWsUpstreamOrderInfoServi
                     upstreamOrderInfo.setName(upstreamOrderInfo.getName() + "-" + taskId);
                     upstreamOrderInfo.setSendType(type);
                     System.out.println("插入订单");
+                    upstreamOrderInfo.setUseOrderId(null);
                     upstreamOrderInfo.setId(IdUtils.fastSimpleUUID());
                     wsUpstreamOrderInfoMapper.insertWsUpstreamOrderInfo(upstreamOrderInfo);
                 }

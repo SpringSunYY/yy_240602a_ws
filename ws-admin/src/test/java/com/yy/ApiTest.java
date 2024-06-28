@@ -11,6 +11,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -209,6 +210,60 @@ public class ApiTest {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void  testUpdateFile(){
+        String url = "https://waapi.qunfa.io/post_upload_num_file";
+        String apiToken = redisCache.getCacheConfig(WS_API_TOKEN);
+        String userId = redisCache.getCacheConfig(WS_USER_ID);
+
+        // 文件路径
+        String filePath = "D:\\ruoyi\\uploadPath\\upload\\2024\\06\\09\\测试用的巴西国家账号 - 副本_20240609200209A001.txt";
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            System.err.println("文件 " + filePath + " 不存在");
+            return;
+        }
+
+        // 创建HTTP客户端
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        try {
+            HttpPost postRequest = new HttpPost(url);
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+
+            // 添加任务信息数据和文件
+            builder.addPart("task_id", new StringBody(String.valueOf(97132), ContentType.TEXT_PLAIN));
+            builder.addPart("api_token", new StringBody(apiToken, ContentType.TEXT_PLAIN));
+            builder.addPart("user_id", new StringBody(userId, ContentType.TEXT_PLAIN));
+            builder.addPart("file", new FileBody(file));
+
+            HttpEntity entity = builder.build();
+            postRequest.setEntity(entity);
+
+            // 发送POST请求
+            CloseableHttpResponse response = httpClient.execute(postRequest);
+            HttpEntity responseEntity = response.getEntity();
+
+            // 输出响应
+            if (responseEntity != null) {
+                String result = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
+                System.out.println(result);
+            }
+
+            response.close();
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                httpClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

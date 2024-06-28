@@ -19,6 +19,8 @@ public class ReturnTaskVo {
 
     private int new_task_status;
 
+    private String task_id;
+
     public static class TaskInfo {
         private String check_key;
         private String create_time;
@@ -218,6 +220,14 @@ public class ReturnTaskVo {
 
     public void setTips(String tips) {
         this.tips = tips;
+    }
+
+    public String getTask_id() {
+        return task_id;
+    }
+
+    public void setTask_id(String task_id) {
+        this.task_id = task_id;
     }
 
     @Override
